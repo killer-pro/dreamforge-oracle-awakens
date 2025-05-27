@@ -3,179 +3,157 @@ import React, { useState, useEffect } from 'react';
 interface GenieIndicatorProps {
   isVisible?: boolean;
   isTyping?: boolean;
+  characterCount?: number;
 }
 
-const GenieIndicator: React.FC<GenieIndicatorProps> = ({ 
-  isVisible = true, 
-  isTyping = false 
-}) => {
+const GenieIndicator: React.FC<GenieIndicatorProps> = ({
+                                                         isVisible = true,
+                                                         isTyping = false,
+                                                         characterCount = 0
+                                                       }) => {
   const [showBubble, setShowBubble] = useState(false);
-  const [peekState, setPeekState] = useState<'hidden' | 'peeking' | 'visible'>('hidden');
+  const [peekState, setPeekState] = useState<'hidden' | 'emerging' | 'visible' | 'hiding'>('hidden');
+  const [bubbleText, setBubbleText] = useState('Interesting...');
 
   useEffect(() => {
-    if (isVisible && isTyping) {
-      // Genie peeks out when user starts typing
-      setPeekState('peeking');
-      setTimeout(() => {
-        setPeekState('visible');
-        setShowBubble(true);
-      }, 300);
-    } else if (!isTyping) {
-      // Genie hides when user stops typing
-      setShowBubble(false);
-      setPeekState('hidden');
+    // Détermine le texte de la bulle selon le nombre de caractères
+    if (characterCount > 100) {
+      setBubbleText('Very interesting...');
+    } else if (characterCount >= 30) {
+      setBubbleText('Interesting...');
     }
-  }, [isVisible, isTyping]);
+  }, [characterCount]);
+
+  useEffect(() => {
+    if (isVisible && isTyping && characterCount >= 30) {
+      // Le génie sort quand l'utilisateur tape 30+ caractères
+      if (peekState === 'hidden') {
+        setPeekState('emerging');
+        setTimeout(() => {
+          setPeekState('visible');
+          setShowBubble(true);
+        }, 600); // Temps pour l'animation d'émergence
+      } else if (peekState === 'visible') {
+        setShowBubble(true);
+      }
+    } else if (!isTyping || characterCount < 30) {
+      // Le génie se cache quand l'utilisateur arrête de taper ou < 30 caractères
+      if (peekState === 'visible' || peekState === 'emerging') {
+        setShowBubble(false);
+        setPeekState('hiding');
+        setTimeout(() => {
+          setPeekState('hidden');
+        }, 400); // Temps pour l'animation de disparition
+      }
+    }
+  }, [isVisible, isTyping, characterCount, peekState]);
 
   if (!isVisible) return null;
 
   const getContainerClass = () => {
     switch (peekState) {
-      case 'peeking':
-        return 'genie-mole-container peek-out';
+      case 'emerging':
+        return 'genie-mole-container emerge';
       case 'visible':
-        return 'genie-mole-container peek-out';
-      default:
+        return 'genie-mole-container visible';
+      case 'hiding':
         return 'genie-mole-container hide';
+      default:
+        return 'genie-mole-container hidden';
     }
   };
 
   return (
       <>
         <style>{`
-        /* Genie Mole Component - Appears like a mole from behind textarea */
+        /* Genie Mole Component - Caché derrière le textarea par défaut */
         .genie-mole-container {
           position: absolute;
-          top: -15px; /* Partially hidden behind textarea */
+          top: -40px; /* Complètement caché derrière le textarea */
           left: 20px;
-          z-index: 5; /* Behind textarea but visible */
+          z-index: 5; /* Derrière le textarea */
           pointer-events: none;
           transform: translateY(0);
+          opacity: 0;
           transition: all 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
 
-        .genie-mole-container.peek-out {
-          transform: translateY(-25px);
-          animation: mole-peek 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .genie-mole-container.hidden {
+          transform: translateY(0);
+          opacity: 0;
+        }
+
+        .genie-mole-container.emerge {
+          transform: translateY(-45px);
+          opacity: 1;
+          animation: mole-emerge 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        .genie-mole-container.visible {
+          transform: translateY(-45px);
+          opacity: 1;
         }
 
         .genie-mole-container.hide {
           transform: translateY(10px);
-          opacity: 0.7;
+          opacity: 0;
+          animation: mole-hide 0.4s ease-in;
         }
-
-        /* Genie character - no tail, compact design */
-        .genie-mole {
-          width: 60px;
-          height: 45px;
-          background: linear-gradient(135deg, #8B5CF6 0%, #A855F7 50%, #C084FC 100%);
-          border-radius: 50% 50% 45% 45%;
-          position: relative;
-          box-shadow: 
-            0 8px 25px rgba(139, 92, 246, 0.4),
-            inset 0 2px 10px rgba(255, 255, 255, 0.2);
-          animation: genie-float 3s ease-in-out infinite;
-        }
-
-        /* Genie face elements */
-        .genie-mole::before {
-          content: '';
-          position: absolute;
-          top: 15px;
-          left: 15px;
-          width: 8px;
-          height: 8px;
-          background: #1F2937;
-          border-radius: 50%;
-          box-shadow: 15px 0 0 #1F2937;
-        }
-
-        .genie-mole::after {
-          content: '';
-          position: absolute;
-          top: 25px;
-          left: 25px;
-          width: 10px;
-          height: 6px;
-          background: #EC4899;
-          border-radius: 50%;
-          opacity: 0.8;
-        }
-
-        /* Genie turban */
-        .genie-turban {
-          position: absolute;
-          top: -8px;
-          left: 8px;
-          width: 44px;
-          height: 20px;
-          background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-          border-radius: 50% 50% 20% 20%;
-          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
-        }
-
-        .genie-turban::before {
-          content: '';
-          position: absolute;
-          top: -5px;
-          left: 18px;
-          width: 8px;
-          height: 12px;
-          background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%);
-          border-radius: 50%;
-          box-shadow: 0 2px 8px rgba(239, 68, 68, 0.4);
-        }
-
-        /* Thought bubble - Snapchat style */
+        /* Thought bubble - Forme de nuage */
         .thought-bubble {
           position: absolute;
-          top: -50px;
-          left: 50px;
+          top: -55px;
+          left: 45px;
           background: rgba(255, 255, 255, 0.95);
-          padding: 8px 12px;
-          border-radius: 18px;
-          font-size: 12px;
+          padding: 10px 16px;
+          border-radius: 25px;
+          font-size: 13px;
           font-weight: 600;
           color: #8B5CF6;
           white-space: nowrap;
           box-shadow: 
-            0 4px 20px rgba(0, 0, 0, 0.1),
-            0 2px 8px rgba(139, 92, 246, 0.2);
+            0 6px 25px rgba(0, 0, 0, 0.15),
+            0 2px 10px rgba(139, 92, 246, 0.2);
           opacity: 0;
-          transform: scale(0.8) translateY(5px);
-          animation: bubble-appear 0.5s ease-out 0.3s forwards;
+          transform: scale(0.8) translateY(8px);
+          animation: bubble-appear 0.6s ease-out 0.2s forwards, bubble-float 6s ease-in-out infinite 0.8s;
+          position: relative;
         }
 
+        /* Forme de nuage pour la bulle */
         .thought-bubble::before {
           content: '';
           position: absolute;
-          bottom: -6px;
-          left: 20px;
-          width: 12px;
-          height: 12px;
+          bottom: -8px;
+          left: 25px;
+          width: 15px;
+          height: 15px;
           background: rgba(255, 255, 255, 0.95);
           border-radius: 50%;
-          transform: rotate(45deg);
+          box-shadow: 
+            -5px 0 0 -2px rgba(255, 255, 255, 0.95),
+            5px 0 0 -2px rgba(255, 255, 255, 0.95);
         }
 
         .thought-bubble::after {
           content: '';
           position: absolute;
-          bottom: -12px;
-          left: 15px;
-          width: 8px;
-          height: 8px;
+          bottom: -15px;
+          left: 20px;
+          width: 10px;
+          height: 10px;
           background: rgba(255, 255, 255, 0.9);
           border-radius: 50%;
+          box-shadow: 
+            8px 2px 0 -2px rgba(255, 255, 255, 0.85);
         }
 
         /* Sparkles around genie */
         .genie-sparkles {
           position: absolute;
-          top: -10px;
+          top: -100px;
           left: -10px;
           right: -10px;
-          bottom: -10px;
           pointer-events: none;
         }
 
@@ -185,7 +163,7 @@ const GenieIndicator: React.FC<GenieIndicatorProps> = ({
           height: 4px;
           background: #FBBF24;
           border-radius: 50%;
-          animation: sparkle-twinkle 2s ease-in-out infinite;
+          animation: sparkle-twinkle 2.5s ease-in-out infinite;
         }
 
         .sparkle:nth-child(1) {
@@ -197,47 +175,61 @@ const GenieIndicator: React.FC<GenieIndicatorProps> = ({
         .sparkle:nth-child(2) {
           top: 20px;
           right: -5px;
-          animation-delay: 0.7s;
+          animation-delay: 0.8s;
         }
 
         .sparkle:nth-child(3) {
           bottom: 15px;
           left: -5px;
-          animation-delay: 1.4s;
+          animation-delay: 1.6s;
         }
 
         .sparkle:nth-child(4) {
           top: 10px;
           left: 5px;
-          animation-delay: 0.3s;
+          animation-delay: 0.4s;
         }
 
         /* Animations */
-        @keyframes mole-peek {
+        @keyframes mole-emerge {
           0% {
             transform: translateY(0);
+            opacity: 0;
           }
-          50% {
-            transform: translateY(-30px);
+          70% {
+            transform: translateY(-50px);
+            opacity: 1;
           }
           100% {
-            transform: translateY(-25px);
+            transform: translateY(-45px);
+            opacity: 1;
+          }
+        }
+
+        @keyframes mole-hide {
+          0% {
+            transform: translateY(-45px);
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(10px);
+            opacity: 0;
           }
         }
 
         @keyframes genie-float {
           0%, 100% {
-            transform: translateY(0) rotate(-1deg);
+            transform: translateY(0) rotate(-0.5deg);
           }
           50% {
-            transform: translateY(-3px) rotate(1deg);
+            transform: translateY(-4px) rotate(0.5deg);
           }
         }
 
         @keyframes bubble-appear {
           0% {
             opacity: 0;
-            transform: scale(0.8) translateY(5px);
+            transform: scale(0.7) translateY(10px);
           }
           100% {
             opacity: 1;
@@ -245,51 +237,39 @@ const GenieIndicator: React.FC<GenieIndicatorProps> = ({
           }
         }
 
+        @keyframes bubble-float {
+          0%, 100% {
+            transform: scale(1) translateY(0);
+          }
+          50% {
+            transform: scale(1) translateY(-3px);
+          }
+        }
+
         @keyframes sparkle-twinkle {
           0%, 100% {
             opacity: 0;
-            transform: scale(0.5);
+            transform: scale(0.3);
           }
           50% {
             opacity: 1;
-            transform: scale(1);
+            transform: scale(1.2);
           }
-        }
-
-        /* Responsive adjustments */
-        @media (max-width: 640px) {
-          .genie-mole-container {
-            left: 15px;
-            top: -12px;
-          }
-          
-          .genie-mole {
-            width: 50px;
-            height: 38px;
-          }
-          
-          .genie-turban {
-            width: 36px;
-            height: 16px;
-            left: 7px;
-          }
-          
+        }         
           .thought-bubble {
             font-size: 11px;
-            padding: 6px 10px;
-            top: -30px;
-            right: -10px;
+            padding: 8px 12px;
+            top: -150px;
+            left: 35px;
           }
         }
 
-        /* Ensure textarea has proper z-index to partially hide genie */
+        /* Ensure textarea has proper z-index */
         .dream-textarea-container {
           position: relative;
           z-index: 10;
         }
       `}</style>
-        <div
-            className="absolute -bottom-2 left-6 w-3 h-3 bg-white/95 rotate-45 border-r border-b border-violet-200/50"></div>
 
         <div className={getContainerClass()}>
           {/* Sparkles */}
@@ -299,38 +279,34 @@ const GenieIndicator: React.FC<GenieIndicatorProps> = ({
             <div className="sparkle"></div>
             <div className="sparkle"></div>
           </div>
-        </div>
 
-        {/* Génie */}
-        <div className="relative">
-          {/* Corps du génie */}
-          <div
-              className="w-16 h-20 bg-gradient-to-b from-purple-400 to-indigo-500 rounded-t-full relative animate-float">
-            {/* Visage */}
-            <div
-                className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-gradient-to-b from-purple-300 to-purple-400 rounded-full">
-              {/* Yeux */}
-              <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-white rounded-full"></div>
-              <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full"></div>
-              {/* Bouche */}
-              <div
-                  className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-1 bg-white rounded-full"></div>
+          {/* Corps du génie avec bras - style original */}
+          <div className="relative">
+            <div className="w-16 h-20 bg-gradient-to-b from-purple-400 to-indigo-500 rounded-t-full relative animate-float">
+              {/* Visage */}
+              <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-12 h-8 bg-gradient-to-b from-purple-300 to-purple-400 rounded-full">
+                {/* Yeux */}
+                <div className="absolute top-2 left-2 w-1.5 h-1.5 bg-white rounded-full"></div>
+                <div className="absolute top-2 right-2 w-1.5 h-1.5 bg-white rounded-full"></div>
+                {/* Bouche */}
+                <div className="absolute bottom-1 left-1/2 transform -translate-x-1/2 w-2 h-1 bg-white rounded-full"></div>
+              </div>
+
+              {/* Bras */}
+              <div className="absolute top-6 -left-2 w-4 h-2 bg-purple-400 rounded-full rotate-45"></div>
+              <div className="absolute top-6 -right-2 w-4 h-2 bg-purple-400 rounded-full -rotate-45"></div>
             </div>
 
-            {/* Bras */}
-            <div className="absolute top-6 -left-2 w-4 h-2 bg-purple-400 rounded-full rotate-45"></div>
-            <div className="absolute top-6 -right-2 w-4 h-2 bg-purple-400 rounded-full -rotate-45"></div>
+            {/* Particules magiques */}
+            <div className="absolute -top-2 -left-2 w-1 h-1 bg-yellow-400 rounded-full animate-ping"></div>
+            <div className="absolute -top-1 right-1 w-1 h-1 bg-blue-400 rounded-full animate-ping" style={{animationDelay: '0.5s'}}></div>
+            <div className="absolute top-4 -right-3 w-1 h-1 bg-pink-400 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
           </div>
-          {/* Particules magiques */}
-          <div className="absolute -top-2 -left-2 w-1 h-1 bg-yellow-400 rounded-full animate-ping"></div>
-          <div className="absolute -top-1 right-1 w-1 h-1 bg-blue-400 rounded-full animate-ping"
-               style={{animationDelay: '0.5s'}}></div>
-          <div className="absolute top-4 -right-3 w-1 h-1 bg-pink-400 rounded-full animate-ping"
-               style={{animationDelay: '1s'}}></div>
+
           {/* Thought bubble */}
           {showBubble && (
               <div className="thought-bubble">
-                Interesting...
+                {bubbleText}
               </div>
           )}
         </div>

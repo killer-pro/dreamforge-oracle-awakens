@@ -22,6 +22,7 @@ const Index = () => {
   const [isLoadingReasoning, setIsLoadingReasoning] = useState<boolean>(false);
 
   const [isTyping, setIsTyping] = useState<boolean>(false);
+  const [characterCount, setCharacterCount] = useState<number>(0);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
   const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
 
@@ -47,7 +48,6 @@ const Index = () => {
       setIsLoadingCreature(false);
       setIsLoadingRitual(false);
       setIsLoadingReasoning(false);
-
 
       // Générer plusieurs images de façon asynchrone
       const imageKeys = ['interpretation', 'historical', 'creature', 'ritual'];
@@ -94,14 +94,17 @@ const Index = () => {
     }
   };
 
-  const handleTypingChange = (typing: boolean) => {
+  const handleTypingChange = (typing: boolean, textLength: number = 0) => {
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
 
+    setCharacterCount(textLength);
+
     if (typing) {
       setIsTyping(true);
     } else {
+      // Délai de 2 secondes avant de considérer que l'utilisateur a arrêté de taper
       typingTimeoutRef.current = setTimeout(() => {
         setIsTyping(false);
       }, 2000);
@@ -112,6 +115,8 @@ const Index = () => {
     setDreamResult(null);
     setDreamImages({});
     setIsImageLoading({});
+    setCharacterCount(0);
+    setIsTyping(false);
   };
 
   return (
@@ -132,8 +137,8 @@ const Index = () => {
 
             {/* Header centré */}
             <header className="z-10 text-center mb-12">
-              <div className="mb-8">
-                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 dream-text-gradient animate-float">
+              <div className="mb-5">
+                <h1 className=" text-4xl sm:text-5xl md:text-6xl font-bold mb-4 dream-text-gradient animate-float">
                   DreamForge
                 </h1>
                 <p className="text-lg text-violet-200/80 max-w-2xl mx-auto mb-6">
@@ -151,6 +156,7 @@ const Index = () => {
                     <GenieIndicator
                         isVisible={true}
                         isTyping={isTyping}
+                        characterCount={characterCount}
                     />
                     <DreamInput
                         onSubmit={handleDreamSubmit}
