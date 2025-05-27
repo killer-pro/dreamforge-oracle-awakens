@@ -13,7 +13,7 @@ const Index = () => {
   const [dreamImages, setDreamImages] = useState<{[key: string]: string | null}>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<{[key: string]: boolean}>({});
-  
+
   // Add individual loading states for analysis sections
   const [isLoadingInterpretation, setIsLoadingInterpretation] = useState<boolean>(false);
   const [isLoadingHistorical, setIsLoadingHistorical] = useState<boolean>(false);
@@ -24,7 +24,7 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
   const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
-  
+
   const handleDreamSubmit = async (dream: string) => {
     try {
       // Set all loading states to true initially
@@ -33,27 +33,14 @@ const Index = () => {
       setIsLoadingCreature(true);
       setIsLoadingRitual(true);
       setIsLoadingReasoning(true);
-      setIsLoading(true); // Keep global loading for initial state or remove if not needed
+      setIsLoading(true);
 
-      setDreamResult(null); // Clear previous results
+      setDreamResult(null);
       setDreamImages({});
       setIsImageLoading({});
-      
-      // NOTE: analyzeDream currently fetches all sections at once.
-      // For truly asynchronous section loading, you would need to modify analyzeDream
-      // to return promises for each section or expose functions to fetch sections individually.
-      // The state updates below are structured as if the data arrives section by section,
-      // but the current analyzeDream implementation won't work that way out-of-the-box.
-      
-      // Assuming analyzeDream is modified to return section data as it's ready:
+
       const result = await analyzeDream(dream, selectedLanguage);
 
-      // Update states as sections are received (This part needs adjustment based on actual analyzeDream modification)
-      // Example (if analyzeDream returned section promises): 
-      // result.summaryPromise.then(summary => { setDreamResult(prev => ({...prev, summary})); setIsLoadingInterpretation(false); });
-      // ... and so on for other sections.
-      
-      // As a placeholder with current analyzeDream structure (fetches all at once):
       setDreamResult(result);
       setIsLoadingInterpretation(false);
       setIsLoadingHistorical(false);
@@ -61,12 +48,12 @@ const Index = () => {
       setIsLoadingRitual(false);
       setIsLoadingReasoning(false);
 
-      
+
       // Générer plusieurs images de façon asynchrone
       const imageKeys = ['interpretation', 'historical', 'creature', 'ritual'];
       const imagePromises = imageKeys.map(async (key) => {
         setIsImageLoading(prev => ({ ...prev, [key]: true }));
-        
+
         let prompt = '';
         switch (key) {
           case 'interpretation':
@@ -82,11 +69,11 @@ const Index = () => {
             prompt = `${result.ritual.title} (${result.ritual.objective})`;
             break;
         }
-        
+
         try {
-          const imageUrl = await generateDreamImage({ 
-            dreamDescription: prompt, 
-            style: key === 'creature' ? 'mystical' : 'surreal' 
+          const imageUrl = await generateDreamImage({
+            dreamDescription: prompt,
+            style: key === 'creature' ? 'mystical' : 'surreal'
           });
           setDreamImages(prev => ({ ...prev, [key]: imageUrl }));
         } catch (error) {
@@ -95,10 +82,9 @@ const Index = () => {
           setIsImageLoading(prev => ({ ...prev, [key]: false }));
         }
       });
-      
-      // Attendre que toutes les images soient générées
+
       await Promise.all(imagePromises);
-      
+
       toast.success('Dream analysis completed!');
     } catch (error) {
       console.error('Error:', error);
@@ -107,12 +93,12 @@ const Index = () => {
       setIsLoading(false);
     }
   };
-  
+
   const handleTypingChange = (typing: boolean) => {
     if (typingTimeoutRef.current) {
       clearTimeout(typingTimeoutRef.current);
     }
-    
+
     if (typing) {
       setIsTyping(true);
     } else {
@@ -129,97 +115,94 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen relative">
-      <StarryBackground />
-      
-      {/* Sélecteur de langue en haut à droite */}
-      <div className="absolute top-6 right-6 z-20">
-        <LanguageSelector 
-          selectedLanguage={selectedLanguage}
-          onLanguageChange={setSelectedLanguage}
-        />
-      </div>
-      
-      {/* Interface centrée */}
-      <div className="min-h-screen flex items-center justify-center py-10 px-4 sm:px-6">
-        <div className="w-full max-w-4xl mx-auto">
-          
-          {/* Header centré */}
-          <header className="z-10 text-center mb-12">
-            <div className="mb-8">
-              <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 dream-text-gradient animate-float">
-                DreamForge
-              </h1>
-              <p className="text-lg text-violet-200/80 max-w-2xl mx-auto mb-6">
-                Transform your dreams into mystical narratives and visual art
-              </p>
-            </div>
-          </header>
-          
-          {/* Contenu principal centré */}
-          <main className="z-10 flex flex-col items-center gap-10">
-            
-            {!dreamResult && (
-              <div className="w-full max-w-3xl relative">
-                {/* Génie "Interesting..." au-dessus du textarea */}
-                {isTyping && (
-                  <div className="mb-4">
-                    <GenieIndicator />
-                  </div>
-                )}
-                <DreamInput 
-                  onSubmit={handleDreamSubmit} 
-                  isLoading={isLoading}
-                  onTypingChange={handleTypingChange}
-                />
-              </div>
-            )}
-            
-            {isLoading && (
-              <div className="flex flex-col items-center justify-center py-10">
-                <div className="w-16 h-16 border-4 border-t-violet-500 border-violet-200/20 rounded-full animate-spin" />
-                <p className="mt-4 text-violet-300 animate-pulse">Analyzing your dream...</p>
-              </div>
-            )}
-            
-            {dreamResult && !isLoading && (
-              <div className="w-full space-y-8">
-                {/* Rendu unique du composant DreamAnalysis avec les données d'images */}
-                <DreamAnalysis
-                  result={dreamResult}
-                  // Pass individual loading states
-                  isLoadingInterpretation={isLoadingInterpretation}
-                  isLoadingHistorical={isLoadingHistorical}
-                  isLoadingCreature={isLoadingCreature}
-                  isLoadingRitual={isLoadingRitual}
-                  isLoadingReasoning={isLoadingReasoning}
-                  dreamImages={dreamImages}
-                  isImageLoading={isImageLoading}
-                />
+      <div className="min-h-screen relative">
+        <StarryBackground />
 
-                <div className="mt-10 flex justify-center">
-                  <button
-                    onClick={resetForm}
-                    className="px-6 py-2 text-sm border border-violet-700/50 rounded-lg hover:bg-violet-900/20 transition-colors"
-                  >
-                    Analyze another dream
-                  </button>
-                </div>
+        {/* Sélecteur de langue en haut à droite */}
+        <div className="absolute top-6 right-6 z-20">
+          <LanguageSelector
+              selectedLanguage={selectedLanguage}
+              onLanguageChange={setSelectedLanguage}
+          />
+        </div>
+
+        {/* Interface centrée */}
+        <div className="min-h-screen flex items-center justify-center py-10 px-4 sm:px-6">
+          <div className="w-full max-w-4xl mx-auto">
+
+            {/* Header centré */}
+            <header className="z-10 text-center mb-12">
+              <div className="mb-8">
+                <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 dream-text-gradient animate-float">
+                  DreamForge
+                </h1>
+                <p className="text-lg text-violet-200/80 max-w-2xl mx-auto mb-6">
+                  Transform your dreams into mystical narratives and visual art
+                </p>
               </div>
-            )}
-          </main>
-          
-          {/* Footer centré */}
-          <footer className="z-10 mt-12 text-center text-sm text-violet-300/50">
-            <p>© 2025 DreamForge - Oneiric Experience</p>
-            <div className="mt-1 text-xs text-violet-300/30">
-              AI Analysis & Vision Active - Explore your dream universe with Gemini
-            </div>
-          </footer>
-          
+            </header>
+
+            {/* Contenu principal centré */}
+            <main className="z-10 flex flex-col items-center gap-10">
+
+              {!dreamResult && (
+                  <div className="w-full max-w-3xl relative dream-textarea-container">
+                    {/* Génie taupe positionné en haut à gauche du textarea */}
+                    <GenieIndicator
+                        isVisible={true}
+                        isTyping={isTyping}
+                    />
+                    <DreamInput
+                        onSubmit={handleDreamSubmit}
+                        isLoading={isLoading}
+                        onTypingChange={handleTypingChange}
+                    />
+                  </div>
+              )}
+
+              {isLoading && (
+                  <div className="flex flex-col items-center justify-center py-10">
+                    <div className="w-16 h-16 border-4 border-t-violet-500 border-violet-200/20 rounded-full animate-spin" />
+                    <p className="mt-4 text-violet-300 animate-pulse">Analyzing your dream...</p>
+                  </div>
+              )}
+
+              {dreamResult && !isLoading && (
+                  <div className="w-full space-y-8">
+                    <DreamAnalysis
+                        result={dreamResult}
+                        isLoadingInterpretation={isLoadingInterpretation}
+                        isLoadingHistorical={isLoadingHistorical}
+                        isLoadingCreature={isLoadingCreature}
+                        isLoadingRitual={isLoadingRitual}
+                        isLoadingReasoning={isLoadingReasoning}
+                        dreamImages={dreamImages}
+                        isImageLoading={isImageLoading}
+                    />
+
+                    <div className="mt-10 flex justify-center">
+                      <button
+                          onClick={resetForm}
+                          className="px-6 py-2 text-sm border border-violet-700/50 rounded-lg hover:bg-violet-900/20 transition-colors"
+                      >
+                        Analyze another dream
+                      </button>
+                    </div>
+                  </div>
+              )}
+            </main>
+
+            {/* Footer centré */}
+            <footer className="z-10 mt-12 text-center text-sm text-violet-300/50">
+              <p>© 2025 DreamForge - Oneiric Experience</p>
+              <div className="mt-1 text-xs text-violet-300/30">
+                AI Analysis & Vision Active - Explore your dream universe with Gemini
+              </div>
+            </footer>
+
+          </div>
         </div>
       </div>
-    </div>
   );
 };
 
