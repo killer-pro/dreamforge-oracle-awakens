@@ -1,61 +1,82 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
+import { ArrowRight, Sparkles } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Brain, Loader2 } from 'lucide-react';
 
 interface DreamInputProps {
   onSubmit: (dream: string) => void;
   isLoading: boolean;
+  onTypingChange: (isTyping: boolean) => void;
 }
 
-export const DreamInput: React.FC<DreamInputProps> = ({ onSubmit, isLoading }) => {
-  const [dreamText, setDreamText] = useState('');
+const DreamInput: React.FC<DreamInputProps> = ({ onSubmit, isLoading, onTypingChange }) => {
+  const [dream, setDream] = useState('');
+  
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDream(event.target.value);
+    onTypingChange(event.target.value.length > 0);
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (dreamText.trim() && !isLoading) {
-      onSubmit(dreamText.trim());
+    if (dream.trim().length > 0) {
+      onSubmit(dream);
     }
   };
 
+  const examples = [
+    "I dreamed I was flying over a golden city",
+    "I spoke with an octopus wearing a tuxedo",
+    "I was falling into a bottomless pit filled with stars"
+  ];
+
+  const handleExampleClick = (example: string) => {
+    setDream(example);
+  };
+  
   return (
-    <Card className="bg-black/20 border-purple-500/30 backdrop-blur-sm">
-      <CardHeader className="text-center">
-        <CardTitle className="text-purple-200 flex items-center justify-center gap-2">
-          <Brain className="w-6 h-6" />
-          Share Your Dream
-        </CardTitle>
-        <CardDescription className="text-purple-300">
-          Describe your dream in as much detail as you remember
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="w-full max-w-3xl mx-auto">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="relative">
           <Textarea
-            placeholder="I dreamed that I was flying over a vast ocean under a starlit sky..."
-            value={dreamText}
-            onChange={(e) => setDreamText(e.target.value)}
-            className="min-h-32 bg-purple-900/20 border-purple-500/30 text-purple-100 placeholder-purple-400 resize-none"
-            disabled={isLoading}
+            value={dream}
+            onChange={handleInputChange}
+            className="dream-input min-h-[120px] transition-all focus:min-h-[160px]"
+            placeholder="Describe your dream here..."
+            required
           />
+          <div className="absolute -bottom-3 -right-3 transform rotate-6 hidden md:block">
+            <Sparkles className="w-8 h-8 text-violet-400 animate-pulse" />
+          </div>
+        </div>
+        
+        <div className="flex flex-col md:flex-row gap-4 items-center justify-between pt-2">
+          <div className="text-xs text-violet-300/70 flex flex-wrap gap-2">
+            <span className="mr-1">Examples:</span>
+            {examples.map((example) => (
+              <button
+                key={example}
+                type="button"
+                className="px-2 py-1 bg-violet-900/30 rounded-md hover:bg-violet-900/50 transition-colors text-violet-300"
+                onClick={() => handleExampleClick(example)}
+              >
+                {example}
+              </button>
+            ))}
+          </div>
+          
           <Button 
             type="submit" 
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:opacity-50"
-            disabled={!dreamText.trim() || isLoading}
+            className="dream-button group"
+            disabled={isLoading || dream.trim().length === 0}
           >
-            {isLoading ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Interpreting Dream...
-              </>
-            ) : (
-              'Interpret My Dream'
-            )}
+            {isLoading ? 'Analyzing...' : 'Explore my dream'}
+            <ArrowRight className="ml-2 h-4 w-4 transition-transform group-hover:translate-x-1" />
           </Button>
-        </form>
-      </CardContent>
-    </Card>
+        </div>
+      </form>
+    </div>
   );
 };
+
+export default DreamInput;

@@ -1,73 +1,122 @@
-# Welcome to your Lovable project
+# 🌙 DreamForge
 
-## Project info
+**DreamForge** is a creative web app that interprets dreams using advanced language models through the Sonar API. It provides psychological, spiritual, historical, and rational insights, along with unique symbolic creatures and dream rituals based on user input.
 
-**URL**: https://lovable.dev/projects/c5e2c66f-26ac-4e3b-ab23-c34657fad0a5
+> 🔗 Live demo: [https://dream-production-0355.up.railway.app/](https://dream-production-0355.up.railway.app/)
 
-## How can I edit this code?
+---
 
-There are several ways of editing your application.
+## 🚀 Features
 
-**Use Lovable**
+- 🧠 Psychological analysis (Freudian, Jungian, etc.)
+- ✨ Spiritual or symbolic interpretation
+- 🧾 Rational explanations
+- 🕰️ Historical interpretations (Ancient Egypt, Native American, etc.)
+- 👁️‍🗨️ Generated symbolic dream creatures
+- 🕯️ Suggested dream rituals with meaning
+- ⚙️ Fallback demo mode for testing without API key
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c5e2c66f-26ac-4e3b-ab23-c34657fad0a5) and start prompting.
+---
 
-Changes made via Lovable will be committed automatically to this repo.
+## 🛠️ Built With
 
-**Use your preferred IDE**
+- **React + Vite**
+- **TypeScript**
+- **TailwindCSS**
+- **Sonar API** (for dream analysis via LLM)
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## 📦 Getting Started
 
-Follow these steps:
+### 1. Clone the Repo
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+```bash
+git clone https://github.com/mlndiaye/dreamforge.git
+cd dreamforge
+```
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+### 2. Install Dependencies
 
-# Step 3: Install the necessary dependencies.
-npm i
+```bash
+npm install
+```
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+### 3. Create Environment Variables
+
+Create a `.env` file at the root of the project and add the following:
+
+```env
+# Required: Your Sonar API key and endpoint
+VITE_SONAR_API_KEY=your_sonar_api_key_here
+VITE_SONAR_API_URL=https://api.sonar.perplexity.ai/v1alpha/chat/completions
+```
+
+> If no API key is provided, the app will fall back to **demo mode** using static responses.
+
+---
+
+### 4. Run the Development Server
+
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Then open [http://localhost:8080](http://localhost:8080) in your browser.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 🧪 Try It Live
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+You can access the hosted demo here:
 
-## What technologies are used for this project?
+👉 [https://dream-production-0355.up.railway.app/](https://dream-production-0355.up.railway.app/)
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## 🏗 Build for Production
 
-## How can I deploy this project?
+```bash
+npm run build
+```
 
-Simply open [Lovable](https://lovable.dev/projects/c5e2c66f-26ac-4e3b-ab23-c34657fad0a5) and click on Share -> Publish.
+To preview the build:
 
-## Can I connect a custom domain to my Lovable project?
+```bash
+npm run preview
+```
 
-Yes, you can!
+---
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+## 📁 Project Structure
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+```
+src/
+├── components/           # UI components (form, result display, etc.)
+├── services/
+│   └── dreamService.ts   # Logic to handle API call or fallback demo
+├── assets/               # Images and icons
+└── App.tsx               # Main app
+```
+
+---
+
+## 👀 Demo Mode
+
+If no API key is provided, the app uses static JSON responses based on keyword detection from the dream (e.g. water, flying, animals). This helps during testing or showcasing the app without LLM calls.
+
+---
+
+## ✨ Contributing
+
+Pull requests are welcome. For major changes, please open an issue first.
+
+---
+
+
+## 🧠 Authors
+
+- Mouhamadou Lamine NDIAYE
+- Mouhamadou Diouf Cissé
+- Abdoulkarim LY
+- Created for the **Perplexity Hackathon 2025**

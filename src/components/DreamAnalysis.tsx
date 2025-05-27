@@ -1,189 +1,179 @@
 
 import React from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Brain, Sparkles, Lightbulb, Clock, Crown, Flame } from 'lucide-react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Book, Clock, Star, Wand } from 'lucide-react';
 
-interface Analysis {
+export interface DreamAnalysisResult {
+  summary: string;
   psychological: string;
   spiritual: string;
   rational: string;
-  historical: string;
+  historical: {
+    era: string;
+    interpretation: string;
+  }[];
   creature: {
     name: string;
     description: string;
-    symbolism: string;
+    characteristics: string;
   };
   ritual: {
-    name: string;
-    description: string;
-    meaning: string;
+    title: string;
+    objective: string;
+    materials: string;
+    steps: string;
+    justification: string;
   };
+  reasoning: string;
 }
 
 interface DreamAnalysisProps {
-  analysis: Analysis;
-  dreamText: string;
+  result: DreamAnalysisResult | null;
 }
 
-export const DreamAnalysis: React.FC<DreamAnalysisProps> = ({ analysis, dreamText }) => {
+const DreamAnalysis: React.FC<DreamAnalysisProps> = ({ result }) => {
+  if (!result) return null;
+  
   return (
-    <div className="space-y-6">
-      {/* Dream Summary */}
-      <Card className="bg-black/20 border-purple-500/30 backdrop-blur-sm">
-        <CardHeader>
-          <CardTitle className="text-purple-200">Your Dream</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <p className="text-purple-100 italic leading-relaxed">"{dreamText}"</p>
-        </CardContent>
-      </Card>
-
-      {/* Analysis Tabs */}
-      <Tabs defaultValue="psychological" className="w-full">
-        <TabsList className="grid w-full grid-cols-4 bg-black/20 border-purple-500/30">
-          <TabsTrigger value="psychological" className="text-purple-200">
-            <Brain className="w-4 h-4 mr-2" />
-            Psychological
+    <div className="w-full max-w-4xl mx-auto animate-fade-in">
+      <Tabs defaultValue="interpretation" className="w-full">
+        <TabsList className="grid grid-cols-4 mb-8">
+          <TabsTrigger value="interpretation" className="flex items-center gap-2">
+            <Book className="h-4 w-4" />
+            <span className="hidden md:inline">Analysis</span>
           </TabsTrigger>
-          <TabsTrigger value="spiritual" className="text-purple-200">
-            <Sparkles className="w-4 h-4 mr-2" />
-            Spiritual
+          <TabsTrigger value="historical" className="flex items-center gap-2">
+            <Clock className="h-4 w-4" />
+            <span className="hidden md:inline">History</span>
           </TabsTrigger>
-          <TabsTrigger value="rational" className="text-purple-200">
-            <Lightbulb className="w-4 h-4 mr-2" />
-            Rational
+          <TabsTrigger value="creature" className="flex items-center gap-2">
+            <Star className="h-4 w-4" />
+            <span className="hidden md:inline">Creature</span>
           </TabsTrigger>
-          <TabsTrigger value="historical" className="text-purple-200">
-            <Clock className="w-4 h-4 mr-2" />
-            Historical
+          <TabsTrigger value="ritual" className="flex items-center gap-2">
+            <Wand className="h-4 w-4" />
+            <span className="hidden md:inline">Ritual</span>
           </TabsTrigger>
         </TabsList>
-
-        <TabsContent value="psychological">
-          <Card className="bg-black/20 border-purple-500/30 backdrop-blur-sm">
+        
+        <TabsContent value="interpretation" className="space-y-6">
+          <Card className="dream-card">
             <CardHeader>
-              <CardTitle className="text-purple-200 flex items-center gap-2">
-                <Brain className="w-5 h-5" />
-                Psychological Analysis
-              </CardTitle>
-              <CardDescription className="text-purple-300">
-                Freudian and Jungian perspectives on your dream
-              </CardDescription>
+              <CardTitle>Analysis of your dream</CardTitle>
+              <CardDescription>Psychological and spiritual interpretation</CardDescription>
             </CardHeader>
-            <CardContent>
-              <p className="text-purple-100 leading-relaxed">{analysis.psychological}</p>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium text-violet-300 mb-2">Summary</h3>
+                <p className="text-white/80">{result.summary}</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-violet-300">Psychological interpretation</h3>
+                  <p className="text-white/80">{result.psychological}</p>
+                </div>
+                
+                <div className="space-y-2">
+                  <h3 className="text-lg font-medium text-violet-300">Spiritual interpretation</h3>
+                  <p className="text-white/80">{result.spiritual}</p>
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium text-violet-300 mb-2">Rational explanation</h3>
+                <p className="text-white/80">{result.rational}</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
-
-        <TabsContent value="spiritual">
-          <Card className="bg-black/20 border-purple-500/30 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-purple-200 flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                Spiritual Interpretation
-              </CardTitle>
-              <CardDescription className="text-purple-300">
-                Symbolic and metaphysical meanings
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-purple-100 leading-relaxed">{analysis.spiritual}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="rational">
-          <Card className="bg-black/20 border-purple-500/30 backdrop-blur-sm">
-            <CardHeader>
-              <CardTitle className="text-purple-200 flex items-center gap-2">
-                <Lightbulb className="w-5 h-5" />
-                Rational Explanation
-              </CardTitle>
-              <CardDescription className="text-purple-300">
-                Scientific and cognitive perspectives
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <p className="text-purple-100 leading-relaxed">{analysis.rational}</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
+        
         <TabsContent value="historical">
-          <Card className="bg-black/20 border-purple-500/30 backdrop-blur-sm">
+          <Card className="dream-card">
             <CardHeader>
-              <CardTitle className="text-purple-200 flex items-center gap-2">
-                <Clock className="w-5 h-5" />
-                Historical Context
-              </CardTitle>
-              <CardDescription className="text-purple-300">
-                Ancient wisdom and cultural interpretations
-              </CardDescription>
+              <CardTitle>Historical interpretation</CardTitle>
+              <CardDescription>Meaning throughout the ages</CardDescription>
             </CardHeader>
             <CardContent>
-              <p className="text-purple-100 leading-relaxed">{analysis.historical}</p>
+              <div className="grid gap-6">
+                {result.historical.map((item, index) => (
+                  <div key={index} className="border-l-2 border-violet-500/50 pl-4">
+                    <h3 className="text-lg font-medium text-violet-300">{item.era}</h3>
+                    <p className="text-white/80">{item.interpretation}</p>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="creature">
+          <Card className="dream-card overflow-hidden">
+            <div className="absolute -right-20 -top-20 w-64 h-64 rounded-full bg-violet-800/20 blur-3xl"></div>
+            <CardHeader>
+              <CardTitle className="dream-text-gradient">{result.creature.name}</CardTitle>
+              <CardDescription>Entity generated by your dream</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="relative h-48 md:h-64 rounded-lg overflow-hidden mb-6">
+                <div className="absolute inset-0 bg-gradient-to-br from-violet-700/20 to-indigo-900/20 animate-pulse-soft"></div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <Star className="w-16 h-16 text-violet-300/50 animate-spin-slow" />
+                </div>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium text-violet-300 mb-2">Description</h3>
+                <p className="text-white/80">{result.creature.description}</p>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium text-violet-300 mb-2">Characteristics</h3>
+                <p className="text-white/80">{result.creature.characteristics}</p>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+        
+        <TabsContent value="ritual">
+          <Card className="dream-card">
+            <CardHeader>
+              <CardTitle>{result.ritual.title}</CardTitle>
+              <CardDescription>{result.ritual.objective}</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div>
+                <h3 className="text-lg font-medium text-violet-300 mb-2">Required materials</h3>
+                <p className="text-white/80">{result.ritual.materials}</p>
+              </div>
+              
+              <div>
+                <h3 className="text-lg font-medium text-violet-300 mb-2">Steps</h3>
+                <p className="text-white/80">{result.ritual.steps}</p>
+              </div>
+              
+              <div className="bg-violet-900/30 p-4 rounded-lg">
+                <h3 className="text-lg font-medium text-violet-300 mb-2">Justification</h3>
+                <p className="text-white/80">{result.ritual.justification}</p>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Creature and Ritual Cards */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card className="bg-black/20 border-purple-500/30 backdrop-blur-sm">
+      
+      <div className="mt-12">
+        <Card className="dream-card border-dashed border-violet-800/50">
           <CardHeader>
-            <CardTitle className="text-purple-200 flex items-center gap-2">
-              <Crown className="w-5 h-5" />
-              Dream Creature
-            </CardTitle>
-            <CardDescription className="text-purple-300">
-              Your symbolic guardian spirit
-            </CardDescription>
+            <CardTitle className="text-sm">Chain of reasoning</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <Badge variant="outline" className="border-purple-500/30 text-purple-200 mb-2">
-                {analysis.creature.name}
-              </Badge>
-              <p className="text-purple-100 text-sm leading-relaxed">
-                {analysis.creature.description}
-              </p>
-            </div>
-            <div>
-              <h4 className="text-purple-200 font-medium mb-1">Symbolism:</h4>
-              <p className="text-purple-100 text-sm">{analysis.creature.symbolism}</p>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-black/20 border-purple-500/30 backdrop-blur-sm">
-          <CardHeader>
-            <CardTitle className="text-purple-200 flex items-center gap-2">
-              <Flame className="w-5 h-5" />
-              Dream Ritual
-            </CardTitle>
-            <CardDescription className="text-purple-300">
-              Ceremony to honor your dream
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div>
-              <Badge variant="outline" className="border-purple-500/30 text-purple-200 mb-2">
-                {analysis.ritual.name}
-              </Badge>
-              <p className="text-purple-100 text-sm leading-relaxed">
-                {analysis.ritual.description}
-              </p>
-            </div>
-            <div>
-              <h4 className="text-purple-200 font-medium mb-1">Meaning:</h4>
-              <p className="text-purple-100 text-sm">{analysis.ritual.meaning}</p>
-            </div>
+          <CardContent>
+            <p className="text-xs md:text-sm text-white/60 font-mono">{result.reasoning}</p>
           </CardContent>
         </Card>
       </div>
     </div>
   );
 };
+
+export default DreamAnalysis;
