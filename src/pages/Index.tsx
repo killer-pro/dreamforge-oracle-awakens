@@ -1,10 +1,8 @@
-
 import React, { useState } from 'react';
 import { toast } from 'sonner';
 import StarryBackground from '@/components/StarryBackground';
 import DreamInput from '@/components/DreamInput';
 import DreamAnalysis, { DreamAnalysisResult } from '@/components/DreamAnalysis';
-import DreamImage from '@/components/DreamImage';
 import LanguageSelector from '@/components/LanguageSelector';
 import GenieIndicator from '@/components/GenieIndicator';
 import { analyzeDream } from '@/services/dreamService';
@@ -30,23 +28,23 @@ const Index = () => {
       setDreamResult(result);
       
       // Générer plusieurs images de façon asynchrone
-      const imageKeys = ['summary', 'psychological', 'spiritual', 'creature'];
+      const imageKeys = ['interpretation', 'historical', 'creature', 'ritual'];
       const imagePromises = imageKeys.map(async (key) => {
         setIsImageLoading(prev => ({ ...prev, [key]: true }));
         
         let prompt = '';
         switch (key) {
-          case 'summary':
-            prompt = result.summary;
+          case 'interpretation':
+            prompt = `Visualisation artistique de l'analyse globale du rêve: ${result.summary}`;
             break;
-          case 'psychological':
-            prompt = result.psychological;
-            break;
-          case 'spiritual':
-            prompt = result.spiritual;
+          case 'historical':
+            prompt = result.historical.length > 0 ? `Visualisation artistique d'une scène de rêve inspirée par l'interprétation historique (${result.historical[0].era}): ${result.historical[0].interpretation}` : `Visualisation artistique d'une scène de rêve onirique avec une touche historique`;
             break;
           case 'creature':
             prompt = `${result.creature.name}: ${result.creature.description}`;
+            break;
+          case 'ritual':
+            prompt = `${result.ritual.title} (${result.ritual.objective})`;
             break;
         }
         
@@ -151,62 +149,13 @@ const Index = () => {
             
             {dreamResult && !isLoading && (
               <div className="w-full space-y-8">
-                {/* Image et résumé */}
-                <div className="grid md:grid-cols-2 gap-6 items-start">
-                  <DreamAnalysis 
-                    result={dreamResult} 
-                    section="summary"
-                  />
-                  <DreamImage 
-                    imageUrl={dreamImages.summary}
-                    isLoading={isImageLoading.summary}
-                    dreamDescription={dreamResult.summary}
-                  />
-                </div>
-                
-                {/* Image et analyse psychologique */}
-                <div className="grid md:grid-cols-2 gap-6 items-start">
-                  <DreamImage 
-                    imageUrl={dreamImages.psychological}
-                    isLoading={isImageLoading.psychological}
-                    dreamDescription="Psychological interpretation"
-                  />
-                  <DreamAnalysis 
-                    result={dreamResult} 
-                    section="psychological"
-                  />
-                </div>
-                
-                {/* Image et analyse spirituelle */}
-                <div className="grid md:grid-cols-2 gap-6 items-start">
-                  <DreamAnalysis 
-                    result={dreamResult} 
-                    section="spiritual"
-                  />
-                  <DreamImage 
-                    imageUrl={dreamImages.spiritual}
-                    isLoading={isImageLoading.spiritual}
-                    dreamDescription="Spiritual interpretation"
-                  />
-                </div>
-                
-                {/* Créature avec image */}
-                <div className="grid md:grid-cols-2 gap-6 items-start">
-                  <DreamImage 
-                    imageUrl={dreamImages.creature}
-                    isLoading={isImageLoading.creature}
-                    dreamDescription={dreamResult.creature.name}
-                  />
-                  <DreamAnalysis 
-                    result={dreamResult} 
-                    section="creature"
-                  />
-                </div>
-                
-                {/* Analyses restantes */}
-                <DreamAnalysis result={dreamResult} section="historical" />
-                <DreamAnalysis result={dreamResult} section="ritual" />
-                
+                {/* Rendu unique du composant DreamAnalysis avec les données d'images */}
+                <DreamAnalysis
+                  result={dreamResult}
+                  dreamImages={dreamImages}
+                  isImageLoading={isImageLoading}
+                />
+
                 <div className="mt-10 flex justify-center">
                   <button
                     onClick={resetForm}

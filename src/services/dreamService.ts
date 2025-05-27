@@ -1,12 +1,11 @@
-
 import { DreamAnalysisResult } from "@/components/DreamAnalysis";
 
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+const SONAR_API_KEY = import.meta.env.VITE_SONAR_API_KEY;
+const SONAR_API_URL = import.meta.env.VITE_SONAR_API_URL;
 
 export async function analyzeDream(dream: string, language: string = 'en'): Promise<DreamAnalysisResult> {
   // Use Gemini API if available
-  if (GEMINI_API_KEY) {
+  if (SONAR_API_KEY) {
     try {
       const languagePrompts = {
         en: 'Analyze the following dream and respond strictly in English in the JSON format specified below',
@@ -58,7 +57,7 @@ JSON response format:
 Use your reasoning and research to provide interesting and creative interpretations, but based on cultural references or psychological theories. Respond ONLY with the JSON, without text before or after.
 `;
 
-      const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+      const response = await fetch(`${SONAR_API_URL}?key=${SONAR_API_KEY}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

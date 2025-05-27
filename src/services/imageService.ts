@@ -1,6 +1,5 @@
-
-const GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-const GEMINI_VISION_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent';
+const SONAR_API_KEY = import.meta.env.VITE_SONAR_API_KEY;
+const SONAR_VISION_API_URL = import.meta.env.VITE_SONAR_API_URL;
 
 export interface GenerateImageParams {
   dreamDescription: string;
@@ -8,7 +7,7 @@ export interface GenerateImageParams {
 }
 
 export async function generateDreamImage(params: GenerateImageParams): Promise<string | null> {
-  if (!GEMINI_API_KEY) {
+  if (!SONAR_API_KEY) {
     console.warn('Gemini API key not found, using placeholder image');
     return generatePlaceholderImage(params.dreamDescription);
   }
@@ -21,7 +20,7 @@ export async function generateDreamImage(params: GenerateImageParams): Promise<s
     Include specific details about lighting, composition, and mood.
     Respond with only the visual description, no additional text.`;
 
-    const response = await fetch(`${GEMINI_VISION_API_URL}?key=${GEMINI_API_KEY}`, {
+    const response = await fetch(`${SONAR_VISION_API_URL}?key=${SONAR_API_KEY}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
