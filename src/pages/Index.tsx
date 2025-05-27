@@ -6,6 +6,7 @@ import DreamInput from '@/components/DreamInput';
 import DreamAnalysis, { DreamAnalysisResult } from '@/components/DreamAnalysis';
 import DreamImage from '@/components/DreamImage';
 import ScholarHead from '@/components/ScholarHead';
+import LanguageSelector from '@/components/LanguageSelector';
 import { analyzeDream } from '@/services/dreamService';
 import { generateDreamImage } from '@/services/imageService';
 import TypingIndicator from '@/components/TypingIndicator';
@@ -17,6 +18,7 @@ const Index = () => {
   const [isImageLoading, setIsImageLoading] = useState<boolean>(false);
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [showScholar, setShowScholar] = useState<boolean>(false);
+  const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
   const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   
   const handleDreamSubmit = async (dream: string) => {
@@ -27,7 +29,7 @@ const Index = () => {
       
       // Générer l'image et analyser le rêve en parallèle
       const [result, imageUrl] = await Promise.all([
-        analyzeDream(dream, null),
+        analyzeDream(dream, selectedLanguage),
         generateDreamImage({ dreamDescription: dream, style: 'surreal' })
       ]);
       
@@ -81,9 +83,17 @@ const Index = () => {
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold mb-4 dream-text-gradient animate-float">
                 DreamForge
               </h1>
-              <p className="text-lg text-violet-200/80 max-w-2xl mx-auto">
+              <p className="text-lg text-violet-200/80 max-w-2xl mx-auto mb-6">
                 Transform your dreams into mystical narratives and visual art
               </p>
+              
+              {/* Sélecteur de langue */}
+              {!dreamResult && (
+                <LanguageSelector 
+                  selectedLanguage={selectedLanguage}
+                  onLanguageChange={setSelectedLanguage}
+                />
+              )}
             </div>
           </header>
           
@@ -94,9 +104,10 @@ const Index = () => {
             <ScholarHead isVisible={showScholar && !dreamResult} />
             
             {!dreamResult && (
-              <div className="w-full max-w-3xl">
-                {isTyping && !showScholar && (
-                  <div className="flex justify-center mb-4">
+              <div className="w-full max-w-3xl relative">
+                {/* Indicateur "Interesting..." au-dessus du textarea */}
+                {isTyping && (
+                  <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 z-20">
                     <TypingIndicator />
                   </div>
                 )}
