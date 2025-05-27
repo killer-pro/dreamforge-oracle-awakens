@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -82,16 +83,53 @@
   }
 }
 
+@keyframes scholar-appear {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scale(0.8);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0px) scale(1);
+  }
+}
+
+@keyframes thinking-dots {
+  0% { content: "."; }
+  33% { content: ".."; }
+  66% { content: "..."; }
+  100% { content: ".."; }
+}
+
 .animate-float {
   animation: float 3s ease-in-out infinite;
 }
 
+.animate-scholar-appear {
+  animation: scholar-appear 0.5s ease-out;
+}
+
 .dream-input {
-  @apply w-full p-4 rounded-lg border bg-transparent border-violet-700/50 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 focus:outline-none text-white placeholder:text-slate-400;
+  @apply w-full p-4 rounded-lg border bg-transparent border-violet-700/50 focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30 focus:outline-none text-white placeholder:text-slate-400 transition-all duration-300;
   -webkit-backdrop-filter: blur(4px);
   backdrop-filter: blur(4px);
 }
 
+.dream-input:focus {
+  box-shadow: 0 0 20px rgba(139, 92, 246, 0.3);
+}
+
 .dream-button {
-  @apply px-8 py-3 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-medium transition-all shadow-lg shadow-violet-600/20 hover:shadow-violet-500/40;
+  @apply px-8 py-3 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 hover:from-violet-500 hover:to-indigo-500 text-white font-medium transition-all shadow-lg shadow-violet-600/20 hover:shadow-violet-500/40 transform hover:scale-105;
+}
+
+/* Animation pour l'interface centrée */
+.centered-layout {
+  @apply min-h-screen flex items-center justify-center;
+}
+
+/* Amélioration de l'animation des points dans TypingIndicator */
+.thinking-dots::after {
+  content: ".";
+  animation: thinking-dots 1.5s infinite;
 }
