@@ -1,5 +1,8 @@
+import { DreamAnalysisResult } from "@/components/DreamAnalysis";
+
 const SONAR_API_KEY = import.meta.env.VITE_SONAR_API_KEY;
-const SONAR_VISION_API_URL = import.meta.env.VITE_SONAR_API_URL;
+const SONAR_API_URL = import.meta.env.VITE_SONAR_API_URL;
+const IMAGE_GENERATION_API_URL = 'https://image.pollinations.ai/prompt/';
 
 export interface GenerateImageParams {
   dreamDescription: string;
@@ -7,61 +10,28 @@ export interface GenerateImageParams {
 }
 
 export async function generateDreamImage(params: GenerateImageParams): Promise<string | null> {
-  if (!SONAR_API_KEY) {
-    console.warn('Gemini API key not found, using placeholder image');
-    return generatePlaceholderImage(params.dreamDescription);
+  if (!params.dreamDescription) {
+    console.warn('No dream description provided for image generation.');
+    return generatePlaceholderImage('empty dream');
   }
 
   try {
-    const prompt = `Create a detailed visual description for an artistic representation of this dream: "${params.dreamDescription}". 
-    Style: ${params.style || 'surreal'}. 
-    Focus on symbolic elements, colors, atmosphere, and mystical aspects. 
-    Make it vivid and dreamlike, suitable for digital art generation.
-    Include specific details about lighting, composition, and mood.
-    Respond with only the visual description, no additional text.`;
+    const encodedPrompt = encodeURIComponent(`${params.dreamDescription}, style ${params.style || 'surreal'}`);
+    
+    const imageUrl = `${IMAGE_GENERATION_API_URL}${encodedPrompt}` +
+                     `?width=1024&height=1024&model=flux&nologo=true&private=false&enhance=false&safe=false`;
 
-    const response = await fetch(`${SONAR_VISION_API_URL}?key=${SONAR_API_KEY}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        contents: [{
-          parts: [{
-            text: prompt
-          }]
-        }],
-        generationConfig: {
-          temperature: 0.8,
-          maxOutputTokens: 300,
-        }
-      }),
-    });
+    console.log('Attempting to generate image from URL:', imageUrl);
 
-    if (!response.ok) {
-      console.error('Gemini API error, using placeholder');
-      return generatePlaceholderImage(params.dreamDescription);
-    }
+    return imageUrl;
 
-    const data = await response.json();
-    const imageDescription = data.candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (imageDescription) {
-      console.log('Generated image description:', imageDescription);
-      // Pour le moment, nous retournons une image placeholder basée sur la description
-      // Dans une vraie implémentation, vous pourriez utiliser DALL-E, Midjourney, etc.
-      return generateEnhancedPlaceholderImage(imageDescription, params.dreamDescription);
-    }
-
-    return generatePlaceholderImage(params.dreamDescription);
   } catch (error) {
-    console.error('Error generating dream image:', error);
+    console.error('Error constructing image URL:', error);
     return generatePlaceholderImage(params.dreamDescription);
   }
 }
 
 function generateEnhancedPlaceholderImage(description: string, dreamText: string): string {
-  // Génère une image placeholder plus sophistiquée basée sur la description Gemini
   const colors = extractColorsFromDescription(description + ' ' + dreamText);
   const elements = extractElementsFromDescription(description);
   
@@ -69,7 +39,6 @@ function generateEnhancedPlaceholderImage(description: string, dreamText: string
 }
 
 function generatePlaceholderImage(description: string): string {
-  // Génère une image placeholder avec un gradient basé sur le contenu du rêve
   const colors = extractColorsFromDescription(description);
   return `data:image/svg+xml,${encodeURIComponent(createGradientSVG(colors))}`;
 }
@@ -98,7 +67,7 @@ function extractColorsFromDescription(description: string): string[] {
     'white': '#FFFFFF'
   };
 
-  const colors = ['#8B5CF6', '#3B82F6']; // couleurs par défaut
+  const colors = ['#8B5CF6', '#3B82F6'];
   
   Object.keys(colorMap).forEach(keyword => {
     if (description.toLowerCase().includes(keyword)) {
@@ -106,7 +75,7 @@ function extractColorsFromDescription(description: string): string[] {
     }
   });
 
-  return [...new Set(colors)].slice(0, 4); // Remove duplicates and limit to 4 colors
+  return [...new Set(colors)].slice(0, 4);
 }
 
 function extractElementsFromDescription(description: string): string[] {
@@ -119,7 +88,7 @@ function extractElementsFromDescription(description: string): string[] {
     }
   });
   
-  return foundElements.slice(0, 3); // Limit to 3 elements
+  return foundElements.slice(0, 3);
 }
 
 function createEnhancedGradientSVG(colors: string[], elements: string[]): string {
@@ -161,15 +130,12 @@ function createEnhancedGradientSVG(colors: string[], elements: string[]): string
       </defs>
       <rect width="100%" height="100%" fill="url(#dreamGrad)"/>
       
-      <!-- Formes mystiques -->
       <circle cx="120" cy="80" r="25" fill="white" opacity="0.15" filter="url(#blur)"/>
       <circle cx="280" cy="120" r="35" fill="white" opacity="0.1" filter="url(#blur)"/>
       <circle cx="200" cy="200" r="20" fill="white" opacity="0.2"/>
       
-      <!-- Éléments extraits de la description -->
       ${elementShapes}
       
-      <!-- Particules flottantes -->
       <circle cx="80" cy="50" r="2" fill="white" opacity="0.8" filter="url(#glow)">
         <animate attributeName="opacity" values="0.3;1;0.3" dur="3s" repeatCount="indefinite"/>
       </circle>
@@ -180,10 +146,8 @@ function createEnhancedGradientSVG(colors: string[], elements: string[]): string
         <animate attributeName="opacity" values="0.2;0.9;0.2" dur="4s" repeatCount="indefinite"/>
       </circle>
       
-      <!-- Texte décoratif -->
       <text x="200" y="280" text-anchor="middle" fill="white" font-family="serif" font-size="14" opacity="0.8" filter="url(#glow)">Dream Vision</text>
       
-      <!-- Ondulations mystiques -->
       <path d="M 0,150 Q 100,130 200,150 T 400,150" stroke="white" stroke-width="1" fill="none" opacity="0.3">
         <animate attributeName="d" values="M 0,150 Q 100,130 200,150 T 400,150;M 0,150 Q 100,170 200,150 T 400,150;M 0,150 Q 100,130 200,150 T 400,150" dur="6s" repeatCount="indefinite"/>
       </path>
