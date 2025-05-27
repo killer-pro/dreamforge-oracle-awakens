@@ -83,17 +83,6 @@
   }
 }
 
-@keyframes scholar-appear {
-  0% {
-    opacity: 0;
-    transform: translateY(20px) scale(0.8);
-  }
-  100% {
-    opacity: 1;
-    transform: translateY(0px) scale(1);
-  }
-}
-
 @keyframes fade-in {
   0% {
     opacity: 0;
@@ -116,10 +105,6 @@
 
 .animate-float {
   animation: float 3s ease-in-out infinite;
-}
-
-.animate-scholar-appear {
-  animation: scholar-appear 0.5s ease-out;
 }
 
 .animate-fade-in {

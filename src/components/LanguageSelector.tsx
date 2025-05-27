@@ -20,12 +20,12 @@ const LanguageSelector: React.FC<LanguageSelectorProps> = ({
   ];
 
   return (
-    <div className="flex items-center justify-center gap-2 mb-4">
+    <div className="flex items-center gap-2">
       <Globe className="w-4 h-4 text-violet-300" />
       <select
         value={selectedLanguage}
         onChange={(e) => onLanguageChange(e.target.value)}
-        className="bg-violet-900/30 border border-violet-700/50 rounded-lg px-3 py-1 text-sm text-violet-200 focus:outline-none focus:border-violet-500 transition-colors"
+        className="bg-violet-900/30 border border-violet-700/50 rounded-lg px-3 py-2 text-sm text-violet-200 focus:outline-none focus:border-violet-500 transition-colors backdrop-blur-sm"
       >
         {languages.map((lang) => (
           <option key={lang.code} value={lang.code} className="bg-violet-900 text-violet-200">
