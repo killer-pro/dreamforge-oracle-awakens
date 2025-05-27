@@ -1,7 +1,3 @@
-import { DreamAnalysisResult } from "@/components/DreamAnalysis";
-
-const SONAR_API_KEY = import.meta.env.VITE_SONAR_API_KEY;
-const SONAR_API_URL = import.meta.env.VITE_SONAR_API_URL;
 const IMAGE_GENERATION_API_URL = 'https://image.pollinations.ai/prompt/';
 
 export interface GenerateImageParams {

@@ -13,19 +13,54 @@ const Index = () => {
   const [dreamImages, setDreamImages] = useState<{[key: string]: string | null}>({});
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isImageLoading, setIsImageLoading] = useState<{[key: string]: boolean}>({});
+  
+  // Add individual loading states for analysis sections
+  const [isLoadingInterpretation, setIsLoadingInterpretation] = useState<boolean>(false);
+  const [isLoadingHistorical, setIsLoadingHistorical] = useState<boolean>(false);
+  const [isLoadingCreature, setIsLoadingCreature] = useState<boolean>(false);
+  const [isLoadingRitual, setIsLoadingRitual] = useState<boolean>(false);
+  const [isLoadingReasoning, setIsLoadingReasoning] = useState<boolean>(false);
+
   const [isTyping, setIsTyping] = useState<boolean>(false);
   const [selectedLanguage, setSelectedLanguage] = useState<string>('en');
   const typingTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
   
   const handleDreamSubmit = async (dream: string) => {
     try {
-      setIsLoading(true);
+      // Set all loading states to true initially
+      setIsLoadingInterpretation(true);
+      setIsLoadingHistorical(true);
+      setIsLoadingCreature(true);
+      setIsLoadingRitual(true);
+      setIsLoadingReasoning(true);
+      setIsLoading(true); // Keep global loading for initial state or remove if not needed
+
+      setDreamResult(null); // Clear previous results
       setDreamImages({});
       setIsImageLoading({});
       
-      // Analyser le rêve
+      // NOTE: analyzeDream currently fetches all sections at once.
+      // For truly asynchronous section loading, you would need to modify analyzeDream
+      // to return promises for each section or expose functions to fetch sections individually.
+      // The state updates below are structured as if the data arrives section by section,
+      // but the current analyzeDream implementation won't work that way out-of-the-box.
+      
+      // Assuming analyzeDream is modified to return section data as it's ready:
       const result = await analyzeDream(dream, selectedLanguage);
+
+      // Update states as sections are received (This part needs adjustment based on actual analyzeDream modification)
+      // Example (if analyzeDream returned section promises): 
+      // result.summaryPromise.then(summary => { setDreamResult(prev => ({...prev, summary})); setIsLoadingInterpretation(false); });
+      // ... and so on for other sections.
+      
+      // As a placeholder with current analyzeDream structure (fetches all at once):
       setDreamResult(result);
+      setIsLoadingInterpretation(false);
+      setIsLoadingHistorical(false);
+      setIsLoadingCreature(false);
+      setIsLoadingRitual(false);
+      setIsLoadingReasoning(false);
+
       
       // Générer plusieurs images de façon asynchrone
       const imageKeys = ['interpretation', 'historical', 'creature', 'ritual'];
@@ -152,6 +187,12 @@ const Index = () => {
                 {/* Rendu unique du composant DreamAnalysis avec les données d'images */}
                 <DreamAnalysis
                   result={dreamResult}
+                  // Pass individual loading states
+                  isLoadingInterpretation={isLoadingInterpretation}
+                  isLoadingHistorical={isLoadingHistorical}
+                  isLoadingCreature={isLoadingCreature}
+                  isLoadingRitual={isLoadingRitual}
+                  isLoadingReasoning={isLoadingReasoning}
                   dreamImages={dreamImages}
                   isImageLoading={isImageLoading}
                 />
